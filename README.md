@@ -43,10 +43,12 @@ github上建立一个仓库，大家使用git各自维护一个部分，学习�
 作业：
 + 优化算法
   HW#1:What is the Convex function?(goole;bing;wiki)
+  HW#2:Chpater1's assignment(DDL 9.26)
 + 线性系统
   HW#1:DDL 9.18
   HW#2:DDL 9.20
 + 计算机视觉
   HW#1:(DDL 9.16 0:00)
 + 数值分析
+ 
 </br>随时补充
