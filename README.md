@@ -42,7 +42,7 @@ github上建立一个仓库，大家使用git各自维护一个部分，学习�
 注册一个github的账号
 作业：
 + 优化算法</br>
-  HW#1:What is the Convex function?(goole;bing;wiki)</br>
+  HW#1:Chpater1's assignment(DDL 9.28)</br>
   HW#2:Chpater1's assignment(DDL 9.26)
 + 线性系统</br>
   HW#1:DDL 9.18</br>
