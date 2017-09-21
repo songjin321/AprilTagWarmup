@@ -1,0 +1,8 @@
+<!-->
+this is a launch for apriltag_slam project
+<-->
+<launch>
+    <include file="$(find pointgrey_camera_driver)/launch/camera.launch"/>
+    <node pkg="apriltag_checkout_tag" type="apriltag_checkout_tag" name="apriltag_checkout_tag"/>
+    <node pkg="apriltag_mapping" type="apriltag_mapping" name="apriltag_mapping" output="screen"/>
+</launch>
