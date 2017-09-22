@@ -3,8 +3,7 @@
 //
 
 #include "apriltag_mapping/apriltag_mapping.h"
-#include "nav_msgs/Path.h"
-#include "nav_msgs/Odometry.h"
+#include <yaml-cpp/yaml.h>
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "apriltag_mapping");
@@ -13,7 +12,6 @@ int main(int argc, char **argv)
     while(ros::ok()){
         ros::spinOnce();
     }
-    cout << "shit" << endl;
     // The name of the slam output file, which will be generated when closing
     processor.Finish("result.txt");
 }
@@ -213,16 +211,28 @@ int iSAMprocessor::FindID(string ID){
 }
 // Save the processed mapping information to the file example: run1.txt
 void iSAMprocessor::Finish(string name){
-    // write the map to map.txt, just save the (x y theta) of apriltags
-    ofstream output("map.txt");
+    // write the map to map.yaml, just save the (x y theta) of apriltags
+    ofstream fout("map.yaml");
+    YAML::Emitter out;
+    out << "the location of tags in map";
+    out << YAML::BeginMap;
+    out << YAML::Key << "tagNumber";
+    out << YAML::Value << tag_pose_nodes.size();
     for(int i = 0; i < tag_pose_nodes.size(); i++){
+        string index = std::to_string(i);
         double x = tag_pose_nodes[i]->value().x();
-        cout << "x = " << std::setprecision(6) << x << endl;
         double y = tag_pose_nodes[i]->value().y();
         double theta = tag_pose_nodes[i]->value().t();
-        output << x <<" "<< y <<" "<< theta << endl;
+        out << YAML::Key << "tag" + index;
+        out << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "x" << YAML::Value << x;
+        out << YAML::Key << "y" << YAML::Value << y;
+        out << YAML::Key << "theta" << YAML::Value << theta;
+        out << YAML::EndMap;
     }
-    std::cout << "OK" << std::endl;
+    out << YAML::EndMap;
+    fout << out.c_str();
+    // write the slam result to file
     slam.batch_optimization();
     slam.print_graph();
     slam.save(name);
