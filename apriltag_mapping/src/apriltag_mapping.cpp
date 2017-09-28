@@ -214,7 +214,6 @@ void iSAMprocessor::Finish(string name){
     // write the map to map.yaml, just save the (x y theta) of apriltags
     ofstream fout("map.yaml");
     YAML::Emitter out;
-    out << "the location of tags in map";
     out << YAML::BeginMap;
     out << YAML::Key << "tagNumber";
     out << YAML::Value << tag_pose_nodes.size();
@@ -237,4 +236,3 @@ void iSAMprocessor::Finish(string name){
     slam.print_graph();
     slam.save(name);
 }
-

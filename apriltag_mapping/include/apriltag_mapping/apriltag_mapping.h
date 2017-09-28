@@ -12,6 +12,7 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <nav_msgs/Path.h>
+#include <yaml-cpp/yaml.h>
 using namespace std;
 using namespace isam;
 /* Class iSAMprocessor, subscribe PoseStampedArray from pose_publisher
@@ -75,4 +76,31 @@ private:
     tf::TransformBroadcaster br;
     tf::TransformListener listener;
 };
+// aprilTag
+struct AprilTag {
+    unsigned int id;
+    double x;
+    double y;
+    double theta;
+};
+// Get map information from map file
+vector<AprilTag> getMap(string mapFile)
+{
+    YAML::Node map = YAML::LoadFile(mapFile);
+    vector<AprilTag> aprilTags;
+    YAML::Node tagNumberNode = map["tagNumber"];
+    int tagNumber = map["tagNumber"].as<int>();
+    for(std::size_t i = 0; i < tagNumber; i++)
+    {
+        string tag_name = "tag" + std::to_string(i);
+        YAML::Node _tag = map[tag_name];
+        AprilTag tag;
+        tag.id = i;
+        tag.x = _tag["x"].as<double>();
+        tag.y = _tag["y"].as<double>();
+        tag.theta = _tag["theta"].as<double>();
+        aprilTags.push_back(tag);
+    }
+    return aprilTags;
+}
 #endif //PROJECT_APRILTAG_MAPPING_H
