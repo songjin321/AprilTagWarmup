@@ -12,6 +12,8 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <nav_msgs/Path.h>
+#include <yaml-cpp/yaml.h>
+#include <algorithm>
 using namespace std;
 using namespace isam;
 /* Class iSAMprocessor, subscribe PoseStampedArray from pose_publisher
@@ -75,4 +77,39 @@ private:
     tf::TransformBroadcaster br;
     tf::TransformListener listener;
 };
+// aprilTag
+struct AprilTag {
+    unsigned int id;
+    double x;
+    double y;
+    double theta;
+};
+// Get map information from map file
+void getMap(string mapFile, vector<AprilTag> &aprilTags)
+{
+    aprilTags.clear();
+    YAML::Node map = YAML::LoadFile(mapFile);
+    YAML::Node tagNumberNode = map["tagNumber"];
+    int tagNumber = map["tagNumber"].as<int>();
+    for(std::size_t i = 0; i < tagNumber; i++)
+    {
+        string tag_name = "tag" + std::to_string(i);
+        YAML::Node _tag = map[tag_name];
+        AprilTag tag;
+        tag.id = i;
+        tag.x = _tag["x"].as<double>();
+        tag.y = _tag["y"].as<double>();
+        tag.theta = _tag["theta"].as<double>();
+        aprilTags.push_back(tag);
+    }
+}
+//　Use id as an index find corresponding AprilTag
+void getAprilTag(const vector<AprilTag> &aprilTags, unsigned int id, AprilTag &re)
+{
+    auto re_ite = find_if(aprilTags.begin(), aprilTags.end(), [id](const AprilTag &a){
+        return id == a.id;
+    });
+    if (re_ite != aprilTags.end())
+        re = *re_ite;
+}
 #endif //PROJECT_APRILTAG_MAPPING_H

@@ -127,7 +127,7 @@ include_directories(
 add_subdirectory(thirdparty)
 
 add_executable(apriltag_mapping src/apriltag_mapping.cpp)
-target_link_libraries(apriltag_mapping ${catkin_LIBRARIES} isamlib)
+target_link_libraries(apriltag_mapping ${catkin_LIBRARIES} isamlib yaml-cpp)
 #############
 ## Install ##
 #############
