@@ -58,7 +58,6 @@ void AprilTagDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     std::vector<AprilTags::TagDetection> detections = tag_detector->extractTags(cameraImage_cv);
     // Assign the header
     tagPose_odom_array.header = cv_ptr->header;
-    tagPose_odom_array.header.frame_id = "/world";
     // Loop to add each tage to tag_pose_array
     for (int i = 0; i < detections.size(); i++) {
         detections[i].draw(cv_ptr->image);//draw tags on the received image
