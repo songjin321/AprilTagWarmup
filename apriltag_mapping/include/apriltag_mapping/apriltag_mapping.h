@@ -13,6 +13,7 @@
 #include <tf/transform_listener.h>
 #include <nav_msgs/Path.h>
 #include <yaml-cpp/yaml.h>
+#include <algorithm>
 using namespace std;
 using namespace isam;
 /* Class iSAMprocessor, subscribe PoseStampedArray from pose_publisher
@@ -84,10 +85,10 @@ struct AprilTag {
     double theta;
 };
 // Get map information from map file
-vector<AprilTag> getMap(string mapFile)
+void getMap(string mapFile, vector<AprilTag> &aprilTags)
 {
+    aprilTags.clear();
     YAML::Node map = YAML::LoadFile(mapFile);
-    vector<AprilTag> aprilTags;
     YAML::Node tagNumberNode = map["tagNumber"];
     int tagNumber = map["tagNumber"].as<int>();
     for(std::size_t i = 0; i < tagNumber; i++)
@@ -101,6 +102,14 @@ vector<AprilTag> getMap(string mapFile)
         tag.theta = _tag["theta"].as<double>();
         aprilTags.push_back(tag);
     }
-    return aprilTags;
+}
+//　Use id as an index find corresponding AprilTag
+void getAprilTag(const vector<AprilTag> &aprilTags, unsigned int id, AprilTag &re)
+{
+    auto re_ite = find_if(aprilTags.begin(), aprilTags.end(), [id](const AprilTag &a){
+        return id == a.id;
+    });
+    if (re_ite != aprilTags.end())
+        re = *re_ite;
 }
 #endif //PROJECT_APRILTAG_MAPPING_H
