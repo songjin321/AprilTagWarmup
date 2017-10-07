@@ -112,4 +112,27 @@ void getAprilTag(const vector<AprilTag> &aprilTags, unsigned int id, AprilTag &r
     if (re_ite != aprilTags.end())
         re = *re_ite;
 }
+// calculate the angle and distance
+void get_odom_angle_translation(nav_msgs::Odometry &old_odom, nav_msgs::Odometry &new_odom, double &angle, double &distance)
+{
+    tf::Quaternion old_orientation(old_odom.pose.pose.orientation.x,
+                                   old_odom.pose.pose.orientation.y,
+                                   old_odom.pose.pose.orientation.z,
+                                   old_odom.pose.pose.orientation.w);
+    tf::Quaternion new_orientation(new_odom.pose.pose.orientation.x,
+                                   new_odom.pose.pose.orientation.y,
+                                   new_odom.pose.pose.orientation.z,
+                                   new_odom.pose.pose.orientation.w);
+    tf::Vector3 old_position(old_odom.pose.pose.position.x,
+                             old_odom.pose.pose.position.y,
+                             old_odom.pose.pose.position.z);
+    tf::Vector3 new_position(new_odom.pose.pose.position.x,
+                             new_odom.pose.pose.position.y,
+                             new_odom.pose.pose.position.z);
+    // Angle between two pose, (angle * axis at z) is the actual angle of turtlebot
+    angle = new_orientation.getAngle() * new_orientation.getAxis().getZ() -
+            old_orientation.getAngle() * new_orientation.getAxis().getZ();
+    // Distance between two pose
+    distance = new_position.distance(old_position);
+}
 #endif //PROJECT_APRILTAG_MAPPING_H
