@@ -20,7 +20,7 @@
     <build_depend>std_msgs</build_depend>
     <build_depend>tf</build_depend>
     <build_depend>apriltag_checkout_tag</build_depend>
-
+    <build_depend>apriltag_mapping</build_depend>
 <!--  This is commented out until rotate_recovery is ported to layered costmaps. <build_depend>rotate_recovery</build_depend> -->
 
     <run_depend>geometry_msgs</run_depend>
@@ -30,4 +30,5 @@
     <run_depend>std_msgs</run_depend>
     <run_depend>tf</run_depend>
     <run_depend>apriltag_checkout_tag</run_depend>
+    <run_depend>apriltag_mapping</run_depend>
 </package>

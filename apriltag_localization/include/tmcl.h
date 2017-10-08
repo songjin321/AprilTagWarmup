@@ -13,17 +13,19 @@
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
-
+#include <stdlib.h>
+#include "apriltag_mapping/apriltag_mapping.h"
 #include <boost/math/distributions/normal.hpp>
+#include <boost/random.hpp>
 
 //#include "glog/logging.h"
 //end debug
 
 using namespace std;
 
-namespace tmcl {
+namespace Tmcl {
 
-  enum tmclState {
+ typedef enum {
     INIT,
     LOST,
     CONVERGING,
@@ -36,19 +38,23 @@ namespace tmcl {
     double y;
     double theta;
     double w; //weight or possibility of this particle
-    velocitymodel();
-
-  }
-
-  class NormalDistribute {
-  public:
-    double x;
-    double y;
-    double theta;
-    double w; //weight or possibility of this particle
-    velocitymodel();
-
-  }
+    RobotParticle()
+    {}
+      ~RobotParticle()
+      {}
+    void MotionModel(double* odom_u)
+    {
+      x += odom_u[0];
+      y += odom_u[1];
+      theta += odom_u[2];
+    }
+    bool operator < (const RobotParticle &m)const {
+      return w < m.w;
+    }
+    bool operator > (const RobotParticle &m)const {
+      return w > m.w;
+    }
+  };
   /**
    * @class tmcl
    * @brief A class that uses the actionlib::ActionServer interface that moves the robot base to a goal location.
@@ -67,53 +73,46 @@ namespace tmcl {
        * @brief  Destructor - Cleans up
        */
     virtual ~tmcl();
-    RobotParticle *particles;
+    std::vector<RobotParticle> particles;
+    std::vector<RobotParticle> particles_resampled;
     int particle_N;
-    tmclState State = INIT;
-    double R_odom;
+    tmclState State;
+    double R_odom[3];
+    int CBcount;
     double R_compare;
+    double robot_pose[3];
+
+    double odom_u[3];
+    /*
+      R: standard deviation
+    */
+    int relocalize(double *robot_pose_, double* R);
+    void transformRobot2World(RobotParticle &p, std::vector<AprilTag> &tag_r, std::vector<AprilTag> &tag_w);
+    void resample(std::vector<RobotParticle> &particles);
+    void normalize(std::vector<RobotParticle> &particles);
+    void calcRobotPose(int front_num);
 
   private:
-
     //double distance(const geometry_msgs::PoseStamped &p1, const geometry_msgs::PoseStamped &p2);
 
     //void SendNavigation_Failed(int resualt);
     //geometry_msgs::PoseStamped goalToGlobalFrame(const geometry_msgs::PoseStamped &goal_pose_msg);
-
+  
     tf::TransformListener &tf_;
 
-    ros::Publisher particle_pub_,robot_pose_;
+    ros::Publisher particle_pub_,robot_pose_pub_;
     ros::Subscriber tagPose_odom_sub_;
 
     ros::Time last_control_;
+    ros::Time dt;
 
-    nav_msgs::Odometry odom_last;
+    nav_msgs::Odometry odom_last,odom_new;
 
-    std::vector<geometry_msgs::PoseStamped_> landmark_observation;
-    std::vector<geometry_msgs::PoseStamped_> landmark_world;
-    std::vector<int> landmark_index;
-    //set up plan triple buffer
-    //std::vector<geometry_msgs::PoseStamped> *planner_plan_;
-
-    //set up the planner's thread
-    // bool runPlanner_;
-    // boost::mutex planner_mutex_;
-    // boost::condition_variable planner_cond_;
-    // geometry_msgs::PoseStamped planner_goal_;
-    // boost::thread *planner_thread_;
-
-    // boost::recursive_mutex configuration_mutex_;
-    // dynamic_reconfigure::Server<move_base::MoveBaseConfig> *dsrv_;
-
-    // void reconfigureCB(move_base::MoveBaseConfig &config, uint32_t level);
-
-    // move_base::MoveBaseConfig last_config_;
-    // move_base::MoveBaseConfig default_config_;
-    // bool setup_, p_freq_change_, c_freq_change_;
-    // bool new_global_plan_;
-    // bool bumper_antidrop_stop_, emergent_stop_;
-    // //debug
-    // int transition;
+    std::vector<AprilTag> landmark_observation;
+    //std::vector<AprilTag> landmark_observation_world;
+    std::vector<AprilTag> aprilTag_map;
+    
+    void dataCB(const apriltag_checkout_tag::PoseStampedArrayConstPtr &_tagPose_odom_array);
   };
 };
 #endif

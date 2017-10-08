@@ -10,6 +10,7 @@ tf
 std_msgs
 nav_msgs
 apriltag_checkout_tag
+apriltag_mapping
 )
 
 #pkg_search_module(Eigen3 REQUIRED eigen3)
@@ -29,7 +30,7 @@ apriltag_checkout_tag
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs apriltag_checkout_tag
+  CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs apriltag_checkout_tag apriltag_mapping
   DEPENDS Eigen3
 )
 
