@@ -1,0 +1,34 @@
+<package>
+    <name>apriltag_localization</name>
+    <version>1.0.0</version>
+    <description>
+
+        This package utilizes paritical filter based on landmarks of Apriltags.
+
+    </description>
+    <author>Johnny Sun</author>
+    <author>Johnnysuns@163.com</author>
+    <maintainer email="johnnysuns@163.com">Johnny Sun</maintainer>
+    <license>NRSL</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <build_depend>geometry_msgs</build_depend>
+     <build_depend>nav_msgs</build_depend>
+    <build_depend>message_generation</build_depend>
+    <build_depend>roscpp</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>tf</build_depend>
+    <build_depend>apriltag_checkout_tag</build_depend>
+    <build_depend>apriltag_mapping</build_depend>
+<!--  This is commented out until rotate_recovery is ported to layered costmaps. <build_depend>rotate_recovery</build_depend> -->
+
+    <run_depend>geometry_msgs</run_depend>
+      <run_depend>nav_msgs</run_depend>
+    <run_depend>message_runtime</run_depend>
+    <run_depend>roscpp</run_depend>
+    <run_depend>std_msgs</run_depend>
+    <run_depend>tf</run_depend>
+    <run_depend>apriltag_checkout_tag</run_depend>
+    <run_depend>apriltag_mapping</run_depend>
+</package>

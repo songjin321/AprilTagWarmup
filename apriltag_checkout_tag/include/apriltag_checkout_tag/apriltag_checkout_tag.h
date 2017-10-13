@@ -4,6 +4,7 @@
 
 #ifndef PROJECT_APRILTAG_CHECKOUT_TAG_H
 #define PROJECT_APRILTAG_CHECKOUT_TAG_H
+
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
