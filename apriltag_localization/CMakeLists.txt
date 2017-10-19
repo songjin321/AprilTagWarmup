@@ -47,4 +47,4 @@ src/tmcl.cpp
 src/tmcl_node.cpp
 )
 
-target_link_libraries(apriltag_localization ${catkin_LIBRARIES} tmcllib)
+target_link_libraries(apriltag_localization ${catkin_LIBRARIES} yaml-cpp)

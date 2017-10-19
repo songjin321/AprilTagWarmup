@@ -38,7 +38,7 @@ tmcl::tmcl(tf::TransformListener& tf) :
   //　Use id as an index find corresponding AprilTag
   double R_loc[3] = {1, 1, 2};
   relocalize(robot_pose, R_loc);
-  particle_pub_ = nh.advertise<std::vector<geometry_msgs::PoseStamped>>("/robot_particles", 1);
+  //particle_pub_ = nh.advertise<std::vector<geometry_msgs::PoseStamped>>("/robot_particles", 1);
   robot_pose_pub_ = nh.advertise<geometry_msgs::PoseStamped>("/robot_pose", 1);
 
   tagPose_odom_sub_ = nh.subscribe<apriltag_checkout_tag::PoseStampedArray>("/tagPose_odom", 1, &tmcl::dataCB, this);
@@ -319,3 +319,50 @@ tmcl::tmcl(tf::TransformListener& tf) :
 
 
 };
+
+void getMap(string mapFile, vector<AprilTag> &aprilTags) {
+  aprilTags.clear();
+  YAML::Node map = YAML::LoadFile(mapFile);
+  YAML::Node tagNumberNode = map["tagNumber"];
+  int tagNumber = map["tagNumber"].as<int>();
+  for (std::size_t i = 0; i < tagNumber; i++) {
+    string tag_name = "tag" + std::to_string(i);
+    YAML::Node _tag = map[tag_name];
+    AprilTag tag;
+    tag.id = i;
+    tag.x = _tag["x"].as<double>();
+    tag.y = _tag["y"].as<double>();
+    tag.theta = _tag["theta"].as<double>();
+    aprilTags.push_back(tag);
+  }
+}
+void getAprilTag(const vector<AprilTag> &aprilTags, unsigned int id, AprilTag &re)
+{
+  auto re_ite = find_if(aprilTags.begin(), aprilTags.end(), [id](const AprilTag &a){
+      return id == a.id;
+  });
+  if (re_ite != aprilTags.end())
+    re = *re_ite;
+}
+void get_odom_angle_translation(nav_msgs::Odometry &old_odom, nav_msgs::Odometry &new_odom, double &angle, double &distance)
+{
+  tf::Quaternion old_orientation(old_odom.pose.pose.orientation.x,
+                                 old_odom.pose.pose.orientation.y,
+                                 old_odom.pose.pose.orientation.z,
+                                 old_odom.pose.pose.orientation.w);
+  tf::Quaternion new_orientation(new_odom.pose.pose.orientation.x,
+                                 new_odom.pose.pose.orientation.y,
+                                 new_odom.pose.pose.orientation.z,
+                                 new_odom.pose.pose.orientation.w);
+  tf::Vector3 old_position(old_odom.pose.pose.position.x,
+                           old_odom.pose.pose.position.y,
+                           old_odom.pose.pose.position.z);
+  tf::Vector3 new_position(new_odom.pose.pose.position.x,
+                           new_odom.pose.pose.position.y,
+                           new_odom.pose.pose.position.z);
+  // Angle between two pose, (angle * axis at z) is the actual angle of turtlebot
+  angle = new_orientation.getAngle() * new_orientation.getAxis().getZ() -
+          old_orientation.getAngle() * new_orientation.getAxis().getZ();
+  // Distance between two pose
+  distance = new_position.distance(old_position);
+}

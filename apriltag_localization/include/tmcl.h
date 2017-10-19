@@ -17,11 +17,26 @@
 #include "apriltag_mapping/apriltag_mapping.h"
 #include <boost/math/distributions/normal.hpp>
 #include <boost/random.hpp>
-
+#include <yaml-cpp/yaml.h>
 //#include "glog/logging.h"
 //end debug
 
 using namespace std;
+
+// aprilTag
+struct AprilTag {
+    unsigned int id;
+    double x;
+    double y;
+    double theta;
+};
+// Get map information from map file
+void getMap(string mapFile, vector<AprilTag> &aprilTags);
+//　Use id as an index find corresponding AprilTag
+void getAprilTag(const vector<AprilTag> &aprilTags, unsigned int id, AprilTag &re);
+// calculate the angle and distance
+void get_odom_angle_translation(nav_msgs::Odometry &old_odom, nav_msgs::Odometry &new_odom,
+                                double &angle, double &distance);
 
 namespace Tmcl {
 
@@ -115,5 +130,6 @@ namespace Tmcl {
     void dataCB(const apriltag_checkout_tag::PoseStampedArrayConstPtr &_tagPose_odom_array);
   };
 };
+
 #endif
 
