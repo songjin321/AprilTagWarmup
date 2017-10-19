@@ -93,8 +93,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "apriltag_checkout_tag");
     ros::NodeHandle nh;
     // Uncomment following 2 line to create a cv window
-    //cv::namedWindow("view", CV_WINDOW_AUTOSIZE);
-    //cv::startWindowThread();
+    // cv::namedWindow("view", CV_WINDOW_AUTOSIZE);
+    // cv::startWindowThread();
     AprilTagDetector detector(nh);
     ros::spin();
     // Uncomment following line to close window when exit.

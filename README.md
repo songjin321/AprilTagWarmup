@@ -14,7 +14,8 @@ Warmup Project  for Freshmen@NRSL about Localization utilizing Apriltag
 + [apriltag_checkout_tag](https://github.com/UnmannedTrackor/ROSSoftwareForHITTractor/tree/develop/src/apriltag_checkout_tag)
 + [apriltag_mapping](https://github.com/UnmannedTrackor/ROSSoftwareForHITTractor/tree/develop/src/apriltag_mapping)
 + [apriltag_localization](https://github.com/UnmannedTrackor/ROSSoftwareForHITTractor/tree/develop/src/apriltag_localization)
-## 2.基本流程
++ vision_opencv package is used for cv_bridge segmentation fault
+## 2.基本流程 
 天花板上贴有人工标志物apriltag，摄像头朝上安装在无人车上，
 ## 3.主要目的
 学习ros、c++、git以及定位的基本原理，具体需要达到的要求
@@ -41,17 +42,8 @@ github上建立一个仓库，大家使用git各自维护一个部分，学习�
 > + c++ prime
 > + 图优化 视觉slam十四讲
 > + 定位理论 概率机器人
-
-注册一个github的账号
-作业：
-+ 优化算法</br>
-  HW#1:Chpater1's assignment(DDL 9.28)</br>
-  HW#2:Chpater1's assignment(DDL 9.26)
-+ 线性系统</br>
-  HW#1:DDL 9.18</br>
-  HW#2:DDL 9.20
-+ 计算机视觉</br>
-  HW#1:(DDL 9.16 0:00)
-+ 数值分析
- 
 </br>随时补充
+
+1. rosbag play 2017-08-17-21-27-29.bag      /odom:=/odom_topic
+2. rosrun apriltag_checkout_tag   apriltag_checkout_tag
+3. rosrun apriltag_mapping  apriltag_mapping
