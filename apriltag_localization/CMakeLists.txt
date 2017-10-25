@@ -12,7 +12,6 @@ nav_msgs
 apriltag_checkout_tag
 apriltag_mapping
 )
-
 #pkg_search_module(Eigen3 REQUIRED eigen3)
 
 # #debug
@@ -47,4 +46,4 @@ src/tmcl.cpp
 src/tmcl_node.cpp
 )
 
-target_link_libraries(apriltag_localization ${catkin_LIBRARIES} yaml-cpp)
+target_link_libraries(apriltag_localization ${catkin_LIBRARIES} yaml-cpp glog gflags_nothreads)

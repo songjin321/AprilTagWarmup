@@ -222,8 +222,10 @@ void iSAMprocessor::Finish(string name){
         double x = tag_pose_nodes[i]->value().x();
         double y = tag_pose_nodes[i]->value().y();
         double theta = tag_pose_nodes[i]->value().t();
+        string id = ID_array[i];
         out << YAML::Key << "tag" + index;
         out << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "id" << YAML::Value << id;
         out << YAML::Key << "x" << YAML::Value << x;
         out << YAML::Key << "y" << YAML::Value << y;
         out << YAML::Key << "theta" << YAML::Value << theta;

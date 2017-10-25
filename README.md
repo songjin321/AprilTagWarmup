@@ -47,3 +47,5 @@ github上建立一个仓库，大家使用git各自维护一个部分，学习�
 1. rosbag play 2017-08-17-21-27-29.bag      /odom:=/odom_topic
 2. rosrun apriltag_checkout_tag   apriltag_checkout_tag
 3. rosrun apriltag_mapping  apriltag_mapping
+4. rosrun apriltag_localization apriltag_localization --logtostderr=1 --colorlogtostderr=1 --stderrthreshold=1
+tagPose_odom = 2 hz
