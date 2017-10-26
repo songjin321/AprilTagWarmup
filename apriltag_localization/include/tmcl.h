@@ -37,7 +37,7 @@ void getAprilTag(const vector<AprilTag> &aprilTags, unsigned int id, AprilTag &r
 // calculate the angle and distance
 void get_odom_angle_translation(nav_msgs::Odometry &old_odom, nav_msgs::Odometry &new_odom,
                                 double &angle, double &distance);
-
+double normal_pdf(double x, double u, double sigma);
 namespace Tmcl {
 
     typedef enum {
@@ -122,7 +122,7 @@ namespace Tmcl {
         ros::Time dt;
 
         nav_msgs::Odometry odom_last,odom_new;
-        visualization_msgs::Marker tags, estimate_path;
+        visualization_msgs::Marker tags, robotPosition;
         std::vector<AprilTag> landmark_observation;
         void output(string state);
         //std::vector<AprilTag> landmark_observation_world;

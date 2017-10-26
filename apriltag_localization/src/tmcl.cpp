@@ -27,7 +27,6 @@ namespace Tmcl {
         State = INIT;
         //current_observation = [ 0, 0, 0 ];
         landmark_observation.clear();
-        landmark_observation.reserve(10);
         //real_observation;
         aprilTag_map.clear();
         memset(robot_pose, 0, sizeof(robot_pose));
@@ -36,10 +35,10 @@ namespace Tmcl {
         last_control_= ros::Time::now();
         memset(odom_u,0,sizeof(odom_u));//odometry represented by dx,dy and domega
 
-        R_odom[0] = 0.005;
-        R_odom[1] = 0.005;
+        R_odom[0] = 0.05;
+        R_odom[1] = 0.05;
         R_odom[2] = 0.01;
-        R_compare = 0.1;
+        R_compare = 1;
 
         robot_pose[0] = 0;
         robot_pose[1] = 0;
@@ -50,7 +49,6 @@ namespace Tmcl {
         getMap("/home/sj/map.yaml", aprilTag_map);
         LOG(INFO) << "read map normal" << endl;
         //　Use id as an index find corresponding AprilTag
-        double R_loc[3] = {1, 1, 2};
         relocalize();
         particle_pub_ = nh.advertise<visualization_msgs::Marker>("/robot_particles", 1);
         robot_pose_pub_ = nh.advertise<geometry_msgs::PoseStamped>("/robot_pose", 1);
@@ -76,16 +74,18 @@ namespace Tmcl {
         tags.color.g=1.0;
         tags.color.a=1.0;
         // set for estimate_path
-        estimate_path.type = visualization_msgs::Marker::LINE_STRIP;
-        estimate_path.header.frame_id  = "/world";
-        estimate_path.header.stamp  = ros::Time::now();
-        estimate_path.ns = "paths";
-        estimate_path.id = 0;
-        estimate_path.action = visualization_msgs::Marker::ADD;
-        estimate_path.pose.orientation.w = 1.0;
-        estimate_path.scale.x = 0.01;
-        estimate_path.color.r=1.0;
-        estimate_path.color.a=1.0;
+        robotPosition.type = visualization_msgs::Marker::POINTS;
+        robotPosition.header.frame_id  = "/world";
+        robotPosition.header.stamp  = ros::Time::now();
+        robotPosition.ns = "position";
+        robotPosition.id = 0;
+        robotPosition.action = visualization_msgs::Marker::ADD;
+        robotPosition.pose.orientation.w = 1.0;
+        robotPosition.scale.x = 0.1;
+        robotPosition.scale.y = 0.1;
+        robotPosition.scale.z = 0.1;
+        robotPosition.color.r=1.0;
+        robotPosition.color.a=1.0;
     }
     int tmcl::relocalize()
     {
@@ -94,7 +94,7 @@ namespace Tmcl {
         particles.clear();
         particles.reserve(particle_N);
 
-        std::uniform_real_distribution<double> distribution(-3,3);
+        std::uniform_real_distribution<double> distribution(-3, 3);//3
 
         //初始撒点
         for(int i=0;i<particle_N;i++)
@@ -257,7 +257,7 @@ namespace Tmcl {
      //   pause_my();
         LOG(INFO) << "PDR OK" << endl;
         double w_sum = 0;
-        if(0!=landmark_observation.size())
+        if( 0 != landmark_observation.size())
         {//有观测
             //考虑每个粒子
             for (int i = 0; i < particle_N;i++)
@@ -279,38 +279,46 @@ namespace Tmcl {
                     double dx=(current_tag_w[j].x-tag_map.x);
                     double dy=(current_tag_w[j].y-tag_map.y);
                     double dd=dx*dx+dy*dy;
-                    boost::math::normal_distribution<> nd(0, R_compare);
-                    double e=boost::math::pdf(nd, dd);
+                    double e = normal_pdf(dd, 0, R_compare);
                     e_sum=e_sum+e;
                 }
                 particles[i].w = e_sum / current_tag_w.size();
                 //求权重和
                 w_sum += particles[i].w;
             }
-        }
-        //考虑每个粒子
-        for (int i = 0; i < particle_N; i++)
-        {
-            //归一化
-            particles[i].w /= w_sum;
+            if (w_sum == 0)
+            {
+                cout << "landmarkSize = " << landmark_observation.size()
+                     << " w_sum = " << w_sum << endl;
+            }
+            //考虑每个粒子
+            for (int i = 0; i < particle_N; i++)
+            {
+                //归一化
+                    particles[i].w /= w_sum;
+            }
+
+            //resampling
+            resample(particles);
+            LOG(INFO) << "resample OK" << endl;
+            normalize(particles);
+            //   output("resample");
+            //   pause_my();
+            LOG(INFO) << "normalize OK" << endl;
         }
      //   output("Observe");
      //   pause_my();
         LOG(INFO) << "Observe OK" << endl;
-
-        //resampling
-        resample(particles);
-        normalize(particles);
-     //   output("resample");
-     //   pause_my();
-        LOG(INFO) << "resample OK" << endl;
-
         //sort particle according to its w form big to little
         std::sort(particles.begin(), particles.end(),
                 [](const RobotParticle &a, const RobotParticle &b)
                 {
                     return a.w > b.w;
                 });
+        for_each(particles.begin(), particles.begin() + 10, [](const RobotParticle &a)
+                                                     {
+                                                         cout << "w = " << a.w << endl;
+                                                     });
         calcRobotPose(particles.size()/20);
      //   CHECK(robot_pose[0] < 10) << "robot x failed";
      //   CHECK(robot_pose[1] < 10) << "robot y failed";
@@ -334,13 +342,8 @@ namespace Tmcl {
     void tmcl::output(string state){
 
         // Set the current time
-        tags.header.stamp = estimate_path.header.stamp  = ros::Time::now();
-        // Add point to estimate_path
-        geometry_msgs::Point p;
-        p.x = robot_pose[0];
-        p.y = robot_pose[1];
-        estimate_path.points.push_back(p);
-
+        tags.header.stamp = robotPosition.header.stamp  = ros::Time::now();
+        robotPosition.header.stamp = robotPosition.header.stamp  = ros::Time::now();
 
         // Clear particles
         tags.points.clear();
@@ -355,8 +358,17 @@ namespace Tmcl {
         //                           << " x = " << p.x << " y = " << p.y
         //                              <<" w = " << p.z << endl;
         }
+
+        robotPosition.points.clear();
+        // Add point to estimate_path
+        geometry_msgs::Point p;
+        p.x = robot_pose[0];
+        p.y = robot_pose[1];
+        robotPosition.points.push_back(p);
+
         // Publish the markers
         particle_pub_.publish(tags);
+        particle_pub_.publish(robotPosition);
     }
 };
 
@@ -405,5 +417,9 @@ void get_odom_angle_translation(nav_msgs::Odometry &old_odom, nav_msgs::Odometry
             old_orientation.getAngle() * new_orientation.getAxis().getZ();
     // Distance between two pose
     distance = new_position.distance(old_position);
+}
+double normal_pdf(double x, double u, double sigma)
+{
+    return exp(-(x-u)*(x-u)/(2*sigma*sigma))/(sigma*sqrt(2*M_PI));
 }
 
