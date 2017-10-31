@@ -12,7 +12,6 @@
           args="load pointgrey_camera_driver/PointGreyCameraNodelet camera_nodelet_manager" >
       <param name="frame_id" value="camera" />
       <param name="serial" value="$(arg camera_serial)" />
-      <remap from="image_raw" to="image_raw_test"/>
       <!-- When unspecified, the driver will use the default framerate as given by the
            camera itself. Use this parameter to override that value for cameras capable of
            other framerates. -->
